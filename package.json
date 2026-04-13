@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:docs": "vite build && npm run copy:docs",
+    "copy:docs": "node -e \"require('fs').rmSync('docs', {recursive: true, force: true}); require('fs').cpSync('dist', 'docs', {recursive: true})\"",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
