@@ -1,32 +1,24 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "numberpopdeploy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "build:docs": "vite build && npm run copy:docs",
-    "copy:docs": "node -e \"require('fs').rmSync('docs', {recursive: true, force: true}); require('fs').cpSync('dist', 'docs', {recursive: true})\"",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "lucide-react": "^0.546.0",
-    "motion": "^12.23.24",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "vite": "^6.2.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SanwikSagarPW/NumberPoP.git"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SanwikSagarPW/NumberPoP/issues"
+  },
+  "homepage": "https://github.com/SanwikSagarPW/NumberPoP#readme",
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "autoprefixer": "^10.4.21",
-    "tailwindcss": "^4.1.14",
-    "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "http-server": "^14.1.1"
   }
 }
