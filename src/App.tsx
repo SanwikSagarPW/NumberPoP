@@ -1,7 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeftRight, Pause, Trash2, Timer, Undo, RotateCcw, Snowflake, ChevronRight, Trophy, Star, Play, HelpCircle, Home as HomeIcon } from 'lucide-react';
 import { TileData, Objective, resolveMerges, generateLevel, generateSpawns, getEmptySpots, Position, findPath } from './lib/gameLogic';
+
+// ─── Analytics Manager Integration ───────────────────────────────────────────
+declare global {
+  interface Window {
+    userInfo?: { UserID?: string; GameID?: string; highestLevelPlayed?: number };
+    ReactNativeWebView?: { postMessage: (msg: string) => void };
+    AnalyticsManager?: new () => {
+      initialize(gameId: string, session: string): void;
+      startLevel(levelId: string): void;
+      endLevel(levelId: string, ok: boolean, ms: number, xp: number): void;
+      addRawMetric(key: string, val: unknown): void;
+      submitReport(): void;
+    };
+  }
+}
 
 const GRID_SIZE = 7;
 const CELL_SIZE = 50;
@@ -48,6 +63,36 @@ export default function App() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [movingTileId, setMovingTileId] = useState<string | null>(null);
   const [movingPath, setMovingPath] = useState<Position[] | null>(null);
+
+  const analyticsRef = useRef<InstanceType<NonNullable<typeof window.AnalyticsManager>> | null>(null);
+  const levelStartTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (window.AnalyticsManager && !analyticsRef.current) {
+      analyticsRef.current = new window.AnalyticsManager();
+      analyticsRef.current.initialize('numberpop', 'session_' + Date.now());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (status === 'playing' && analyticsRef.current) {
+      analyticsRef.current.startLevel('level_' + level);
+      levelStartTimeRef.current = Date.now();
+    }
+  }, [status, level]);
+
+  useEffect(() => {
+    if ((status === 'won' || status === 'lost') && analyticsRef.current) {
+      const timeTaken = Date.now() - levelStartTimeRef.current;
+      const baseXP = 100;
+      const scoreBonus = Math.floor(score / 100);
+      const xpEarned = status === 'won' ? Math.min(baseXP + scoreBonus, 200) : 0;
+      analyticsRef.current.endLevel('level_' + level, status === 'won', timeTaken, xpEarned);
+      analyticsRef.current.addRawMetric('score', score);
+      analyticsRef.current.addRawMetric('status', status);
+      analyticsRef.current.submitReport();
+    }
+  }, [status]);
 
   const loadLevel = (lvl: number, keepScore = false) => {
     const data = generateLevel(lvl);
